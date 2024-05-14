@@ -17,39 +17,53 @@ workspace extends ../models.dsl {
                         tags "Amazon Web Services - VPC"
 
                         appLoadBalancer = infrastructureNode "Application Load Balancer" {
-                            tags "Amazon Web Services - Elastic Load Balancing ELB Application load balancer"
+                            tags "Amazon Web Services - Elastic Load Balancing Application Load Balancer"
+                        }
+
+                        s3 = deploymentNode "S3" {
+                            tags "Amazon Web Services - Simple Storage Service S3 Standard"
+                            
+                            containerInstance frontStoreApp
                         }
 
                         deploymentNode "eks-cluster" {
                             tags "Amazon Web Services - Elastic Kubernetes Service"
                         
-                            deploymentNode "ec2-a" {
-                                tags "Amazon Web Services - EC2 Instance"
+                            deploymentNode "private-net-a" {
+                                tags "Amazon Web Services - VPC subnet private"
 
-                                searchWebApiInstance = containerInstance searchWebApi
-                                publicWebApiInstance = containerInstance publicWebApi
-                                adminWebApiInstance = containerInstance adminWebApi
-                                publisherRecurrentUpdateInstance = containerInstance publisherRecurrentUpdater
+                                deploymentNode "ec2-a" {
+                                    tags "Amazon Web Services - EC2 Instance"
+
+                                    backofficeAppInstance = containerInstance backofficeApp
+                                    searchWebApiInstance = containerInstance searchWebApi
+                                    publicWebApiInstance = containerInstance publicWebApi
+                                    adminWebApiInstance = containerInstance adminWebApi
+                                    publisherRecurrentUpdateInstance = containerInstance publisherRecurrentUpdater
+                                }
                             }
+                            deploymentNode "private-net-b" {
+                                tags "Amazon Web Services - VPC subnet private"
 
-                            deploymentNode "ec2-b" {
-                                tags "Amazon Web Services - EC2 Instance"
+                                deploymentNode "ec2-b" {
+                                    tags "Amazon Web Services - EC2 Instance"
 
-                                containerInstance bookEventConsumer
-                                containerInstance bookEventStream
+                                    containerInstance bookEventConsumer
+                                    containerInstance bookEventStream
+                                }
+
+                                deploymentNode "PostgreSQL RDS" {
+                                    tags "Amazon Web Services - RDS"
+                                    
+                                    containerInstance bookstoreDatabase
+                                }
+
+                                deploymentNode "Amazon OpenSearch" {
+                                    tags "Amazon Web Services - OpenSearch Service"
+
+                                    containerInstance searchDatabase
+                                }
                             }
-                        }
-
-                        deploymentNode "Amazon Elasticsearch" {
-                            tags "Amazon Web Services - Elasticsearch Service"
-
-                            containerInstance searchDatabase
-                        }
-
-                        deploymentNode "PostgreSQL RDS" {
-                            tags "Amazon Web Services - RDS"
-                            
-                            containerInstance bookstoreDatabase
                         }
                     }
                 }
@@ -88,7 +102,7 @@ workspace extends ../models.dsl {
         # deployment <software-system> <environment> <key> <description>
         deployment bookstoreSystem prodEnvironment "Dep-001-PROD" "Cloud Architecture for Bookstore Platform using AWS Services" {
             include *
-            autoLayout lr
+            #autoLayout lr
         }
         # dynamic <container> <name> <description>
         dynamic deployWorkflow "Dynamic-001-WF" "Bookstore platform deployment workflow" {
@@ -101,7 +115,7 @@ workspace extends ../models.dsl {
             autoLayout lr
         }
 
-        theme "https://static.structurizr.com/themes/amazon-web-services-2020.04.30/theme.json"
+        themes "https://static.structurizr.com/themes/amazon-web-services-2020.04.30/theme.json" "https://static.structurizr.com/themes/amazon-web-services-2023.01.31/theme.json"
 
         styles {
             element "Dynamic Element" {
