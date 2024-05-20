@@ -52,7 +52,6 @@ workspace {
         frontStoreApp -> searchWebApi "search book and place order" "JSON/HTTPS"
         backofficeApp -> adminWebApi "administrate books and purchases" "JSON/HTTPS"
         publicUser -> frontStoreApp "use all the bookstore functionalities" "web page"
-        publicUser -> publicWebApi "View book information" "JSON/HTTPS"
         publicWebApi -> searchDatabase "Retrieve book search data" "ODBC"
         authorizedUser -> searchWebApi "Search book with more details" "JSON/HTTPS"
         authorizedUser -> frontStoreApp "use all the bookstore functionalities" "web page"
@@ -76,7 +75,6 @@ workspace {
 
         # Relationship between Components
         authorizedUser -> bookService "Administrate book details" "JSON/HTTPS"
-        internalUser -> bookService "Administrate book details" "JSON/HTTPS"
         publisherRecurrentUpdater -> bookService "Makes API calls to" "JSON/HTTPS"
         bookService -> authService "Uses"
         bookService -> bookEventPublisher "Uses"

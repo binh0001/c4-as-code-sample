@@ -16,8 +16,16 @@ workspace extends ../models.dsl {
                     deploymentNode "prod-vpc" {
                         tags "Amazon Web Services - VPC"
 
-                        appLoadBalancer = infrastructureNode "Application Load Balancer" {
-                            tags "Amazon Web Services - Elastic Load Balancing Application Load Balancer"
+                        deploymentNode "public-net" {
+                            tags "Amazon Web Services - VPC subnet public"
+
+                            appLoadBalancer = infrastructureNode "Application Load Balancer" {
+                                tags "Amazon Web Services - Elastic Load Balancing Application Load Balancer"
+                            }
+                        }
+
+                        cloudFrontDistribution = infrastructureNode "CloudFront Distribution" {
+                            tags "Amazon Web Services - CloudFront Download Distribution"
                         }
 
                         s3 = deploymentNode "S3" {
@@ -42,6 +50,7 @@ workspace extends ../models.dsl {
                                     publisherRecurrentUpdateInstance = containerInstance publisherRecurrentUpdater
                                 }
                             }
+
                             deploymentNode "private-net-b" {
                                 tags "Amazon Web Services - VPC subnet private"
 
@@ -51,12 +60,20 @@ workspace extends ../models.dsl {
                                     containerInstance bookEventConsumer
                                     containerInstance bookEventStream
                                 }
+                            }
+
+                            deploymentNode "private-net-c" {
+                                tags "Amazon Web Services - VPC subnet private"
 
                                 deploymentNode "PostgreSQL RDS" {
                                     tags "Amazon Web Services - RDS"
                                     
                                     containerInstance bookstoreDatabase
                                 }
+                            }
+
+                            deploymentNode "private-net-d" {
+                                tags "Amazon Web Services - VPC subnet private"
 
                                 deploymentNode "Amazon OpenSearch" {
                                     tags "Amazon Web Services - OpenSearch Service"
@@ -69,6 +86,8 @@ workspace extends ../models.dsl {
                 }
             }
             route53 -> appLoadBalancer
+            route53 -> cloudFrontDistribution
+            cloudFrontDistribution -> s3
             appLoadBalancer -> publicWebApiInstance "Forwards requests to" "[HTTPS]"
             appLoadBalancer -> searchWebApiInstance "Forwards requests to" "[HTTPS]"
             appLoadBalancer -> adminWebApiInstance "Forwards requests to" "[HTTPS]"
